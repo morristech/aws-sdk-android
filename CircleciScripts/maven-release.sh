@@ -13,20 +13,26 @@ settings="CircleciScripts/mvhome/settings.xml"
 localrepo="${HOME}/.m2" 
 skipRemoteStaging=${SkipRemoteStaging}
 autoReleaseAfterClose=${AutoReleaseAfterClose}
-gpg_homedir="${HOME}/code/gpghome"
+currentdir=$(pwd)
+gpg_homedir="${currentdir}/gpghome"
 sonatype_username=${SonatypeUsername}
 sonatype_password=${SonatypePassword}
 gpg_keyname=${GpgKeyname}
 gpg_passphrase="${GpgPassphrase}"
-echo "gpg_passphrase:$gpg_passphrase"
+echo "gpg_keyname:$gpg_keyname" 
 
 # Perm gen space is increased for maven command
 MAVEN_OPTS="-Xms1024m -Xmx2048m -XX:PermSize=512m -XX:MaxPermSize=1024m"
-
+# gpg_keyname="D5503EEA"
+# #RDU1MDNFRUE
+# gpg_passphrase="%3kE}\LPf-8|F'D"
+# #JTNrRX1cTFBmLTh8RidE
+# sonatype_username="amazonwebservices"
+# sonatype_password=qI@ia573$0An
 
 mvn clean deploy -X -e -Ppublishing \
     -f "$pom" \
-    --settings="CircleciScripts/mvnhome/settings.xml" \
+    --settings="${currentdir}/CircleciScripts/mvnhome/settings.xml" \
     -Dmaven.repo.local="$localrepo" \
     -DperformRelease \
     -DskipRemoteStaging=false \
@@ -36,6 +42,6 @@ mvn clean deploy -X -e -Ppublishing \
     -Dgpg.homedir="$gpg_homedir" \
     -Dgpg.keyname="$gpg_keyname" \
     -Dgpg.passphrase="$gpg_passphrase" \
-    -DskipTests=true
+    -DskipTests=true  
     
 

@@ -131,6 +131,7 @@ jobs:
           command: |
             brew tap caskroom/cask
             brew cask install android-sdk
+   #         - echo y | android update sdk --no-ui --all --filter "android-25,build-tools-25.0.2platform-tools,extra-android-m2repository,extra-google-m2repository"
       - run:
           name: install aws cli
           command: |
@@ -138,17 +139,38 @@ jobs:
       - run:
           name: install android build tools
           command: |
-            echo "${HOME}"
-            echo "$JAVA_HOME"
-            echo "$ANDROID_HOME"
-            echo "$PATH"                    
+            sudo yes | /usr/local/bin/sdkmanager "platforms;android-21" "platforms;android-27" "build-tools;27.0.1"  "extras;google;m2repository" "extras;android;m2repository"          
+            /usr/local/bin/sdkmanager --update
+      - run:
+          name: Set environment
+          command: |
+            echo ~
+            ls /usr/local/share/android-sdk
+            ANDROID_HOME="/usr/local/share/android-sdk"
+            echo 'export ANDROID_HOME="/usr/local/share/android-sdk"' >> $BASH_ENV
+            echo "Home: ${HOME}"
+            echo "JAVA_HOME: $JAVA_HOME"
+            echo "ANDROID_HOME: $ANDROID_HOME"
+            echo "PATH: $PATH"                    
             echo 'export ANDROID_PLATFORM="27"' >> $BASH_ENV
             echo 'export ANDROID_BUILDTOOL_VERSION="27.0.1"' >> $BASH_ENV
+            echo "build-tools;$ANDROID_BUILDTOOL_VERSION"  
+            echo "home:"
+            ls "${HOME}"
+            echo "files for /Users/distiller/Library/"
+            ls /Users/distiller/Library/
+            echo "files for current "
+            ls
+            echo "files for $ANDROID_HOME"
+            ls "$ANDROID_HOME"
 
-            echo "build-tools;$ANDROID_BUILDTOOL_VERSION" 
+            ls $ANDROID_HOME/tools
 
-            /usr/local/bin/sdkmanager "platforms;android-21" "build-tools;27.0.1"  "extras;google;m2repository" "extras;android;m2repository"          
-                
+      - run:
+          name: Instal gpg
+          command: |
+            brew install gnupg
+
       - run:
           name: download gpghome
           command: |
@@ -164,10 +186,6 @@ jobs:
             brew install maven
 
       - run:
-          name: Download Dependencies
-          command: bash gradlew androidDependencies
-
-      - run:
           name: publish to maven
           command: |
             echo "${HOME}"
@@ -181,10 +199,7 @@ workflows:
   version: 2
   build_and_test:
     jobs: 
-      - release_maven:
-          filters:
-            branches:
-              ignore: /gh-.*/
+      - release_maven
   #     - unittest:
   #         requires:
   #           - build
